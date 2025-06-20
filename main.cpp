@@ -1,4 +1,3 @@
- 
 #include <tesseract/baseapi.h>
 #include <leptonica/allheaders.h>
 
