@@ -2,7 +2,7 @@
 
 # Define the C++ executable name from your Makefile
 CPP_EXECUTABLE="ocr_app"
-PYTHON_SCRIPT="geminiapi.py"
+PYTHON_SCRIPT="extract_receipt_items.py"
 
 # --- Step 1: Compile the C++ program using Makefile ---
 echo "Compiling C++ program using Makefile..."

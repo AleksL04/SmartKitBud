@@ -1,4 +1,5 @@
 import os
+import json
 from google import genai
 from google.genai import types
 
@@ -9,7 +10,7 @@ cpp_output_file = "output_from_cpp.txt"
 with open(cpp_output_file, "r", encoding = "utf-8") as file:
     string_obj = file.read()
 
-promt = "Extract the reciept items in json format with name price and quantity, no quotes "
+promt = "Extract the reciept items in json format with name price and quantity, no markdown quotes"
 
 response = client.models.generate_content(
     model="gemini-2.5-flash", contents=[promt,string_obj],
@@ -17,4 +18,5 @@ response = client.models.generate_content(
         thinking_config=types.ThinkingConfig(thinking_budget=0) # Disables thinking
     ),
 )
-print(response.text)
+python_dict = json.loads(response.text)
+print(python_dict)

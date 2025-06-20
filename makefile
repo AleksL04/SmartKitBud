@@ -2,7 +2,7 @@
 CXX = g++
 
 # Define the source file(s)
-SRCS = main.cpp
+SRCS = image_to_text.cpp
 
 # Define the executable name
 TARGET = ocr_app
