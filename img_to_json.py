@@ -34,7 +34,7 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
 OCR_API_KEY = os.environ.get("OCR_SPACE_API_KEY")
 
-test_file = ocr_space_file(filename='img/test1.jpg', language='eng', api_key=OCR_API_KEY)
+test_file = ocr_space_file(filename='processed_receipts/test2_2_processed.jpg',api_key=OCR_API_KEY)
 json_response = json.loads(test_file)
 extracted_text = json_response['ParsedResults'][0]['ParsedText']
 

@@ -89,7 +89,7 @@ if __name__ == "__main__":
     # --- Example Usage ---
     
     # Create a dummy image for demonstration if not found
-    test_image_input_path = "img/test2.jpg" 
+    test_image_input_path = "img/test2_2.jpg" 
     if not os.path.exists(test_image_input_path):
         print(f"Creating a dummy large image at {test_image_input_path} for testing...")
         try:
