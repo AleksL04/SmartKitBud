@@ -30,21 +30,18 @@ def ocr_space_file(filename, overlay=False, api_key='helloworld', language='eng'
                           )
     return r.content.decode()
 
-test_file = ocr_space_file(filename='img/test1.jpg', language='eng', api_key='K87199939888957')
-json_response = json.loads(test_file)
-extracted_text = json_response['ParsedResults'][0]['ParsedText']
-
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
+OCR_API_KEY = os.environ.get("OCR_SPACE_API_KEY")
 
-cpp_output_file = "output_from_cpp.txt"
-with open(cpp_output_file, "r", encoding = "utf-8") as file:
-    string_obj = file.read()
+test_file = ocr_space_file(filename='img/test1.jpg', language='eng', api_key=OCR_API_KEY)
+json_response = json.loads(test_file)
+extracted_text = json_response['ParsedResults'][0]['ParsedText']
 
 promt = "Extract the reciept items in json format with name price and quantity, no markdown quotes, do your best to correct product names"
 
 response = client.models.generate_content(
-    model="gemini-2.5-flash", contents=[promt,string_obj],
+    model="gemini-2.5-flash", contents=[promt,extracted_text],
     config=types.GenerateContentConfig(
         thinking_config=types.ThinkingConfig(thinking_budget=0) # Disables thinking
     ),
