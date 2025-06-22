@@ -10,7 +10,7 @@ cpp_output_file = "output_from_cpp.txt"
 with open(cpp_output_file, "r", encoding = "utf-8") as file:
     string_obj = file.read()
 
-promt = "Extract the reciept items in json format with name price and quantity, no markdown quotes"
+promt = "Extract the reciept items in json format with name price and quantity, no markdown quotes, do your best to correct product names"
 
 response = client.models.generate_content(
     model="gemini-2.5-flash", contents=[promt,string_obj],
