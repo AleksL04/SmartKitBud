@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import sys
 
 from google import genai
 from google.genai import types
@@ -30,15 +31,23 @@ def ocr_space_file(filename, overlay=False, api_key='helloworld', language='eng'
                           )
     return r.content.decode()
 
+
+
+if len(sys.argv) > 1:
+    file_path = sys.argv[1]
+else:
+    print("Usage: python my_script.py <file_path>")
+
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 client = genai.Client(api_key=GEMINI_API_KEY)
-OCR_API_KEY = os.environ.get("OCR_SPACE_API_KEY")
+OCR_API_KEY = os.environ.get("OCR_API_KEY")
 
-test_file = ocr_space_file(filename='processed_receipts/test2_2_processed.jpg',api_key=OCR_API_KEY)
+#'processed_receipts/test2_2_processed.jpg'
+test_file = ocr_space_file(filename=file_path,api_key=OCR_API_KEY)
 json_response = json.loads(test_file)
 extracted_text = json_response['ParsedResults'][0]['ParsedText']
 
-promt = "Extract the reciept items in json format with name price and quantity, no markdown quotes, do your best to correct product names"
+promt = "Extract the reciept items in json format with name price and quantity, no markdown quotes,  correct product names if name seems off"
 
 response = client.models.generate_content(
     model="gemini-2.5-flash", contents=[promt,extracted_text],
