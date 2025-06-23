@@ -108,7 +108,7 @@ if __name__ == "__main__":
             exit(1)
 
     # Define output directory for processed images
-    output_dir = "processed_receipts"
+    output_dir = "p_img"
 
     # Process and compress the image
     processed_image_path = preprocess_and_compress_image_for_ocr(
