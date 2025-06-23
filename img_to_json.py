@@ -31,8 +31,6 @@ def ocr_space_file(filename, overlay=False, api_key='helloworld', language='eng'
                           )
     return r.content.decode()
 
-
-
 if len(sys.argv) > 1:
     file_path = sys.argv[1]
 else:
