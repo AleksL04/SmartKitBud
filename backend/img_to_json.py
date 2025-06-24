@@ -59,11 +59,7 @@ def _call_gemini_api(extracted_text = "", api_key = ""):
     )
     return response.text
 
-def process_image_to_receipt_json(
-    image_filepath: str,
-    ocr_api_key: str,
-    gemini_api_key: str
-):
+def process_image_to_receipt_json(image_filepath: str,ocr_api_key: str,gemini_api_key: str):
     ocr_response_raw = _call_ocr_space_api(filename=image_filepath, api_key=ocr_api_key)
     json_response = json.loads(ocr_response_raw)
 
@@ -71,4 +67,4 @@ def process_image_to_receipt_json(
 
     gemini_output_raw = _call_gemini_api(extracted_text, gemini_api_key)
     python_dict = json.loads(gemini_output_raw)
-    print(python_dict)
+    return python_dict
