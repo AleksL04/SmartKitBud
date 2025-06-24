@@ -45,10 +45,10 @@ test_file = ocr_space_file(filename=file_path,api_key=OCR_API_KEY)
 json_response = json.loads(test_file)
 extracted_text = json_response['ParsedResults'][0]['ParsedText']
 
-promt = "Extract the reciept items in json format with name price and quantity, no markdown quotes,  correct product names if name seems off"
+promt1 = "Extract reciept entries in valid JSON only. Do not include any explanation or extra text. Each item should have: name (string), price (number), quantity (number)"
 
 response = client.models.generate_content(
-    model="gemini-2.5-flash", contents=[promt,extracted_text],
+    model="gemini-2.5-flash", contents=[promt1,extracted_text],
     config=types.GenerateContentConfig(
         thinking_config=types.ThinkingConfig(thinking_budget=0) # Disables thinking
     ),
