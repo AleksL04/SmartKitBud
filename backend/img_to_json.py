@@ -31,72 +31,77 @@ def ocr_space_file(filename, overlay=False, api_key='helloworld', language='eng'
                           )
     return r.content.decode()
 
-if len(sys.argv) > 1:
-    file_path = sys.argv[1]
-else:
-    print("Usage: python my_script.py <file_path>")
+def gemini_query(extracted_text):
+    instruction = """
+    Extract all individual item entries from the receipt. Respond only with a JSON array. Each item object must have "name" (string), "price" (number), and "quantity" (number).
+    Example output:
+    [
+    {
+        "name": "Milk (1 Gallon)",
+        "price": 3.49,
+        "quantity": 1
+    },
+    {
+        "name": "Bread (Wheat)",
+        "price": 2.99,
+        "quantity": 2
+    }
+    ]
+    Do not include any additional text or markdown quotes. If no items are found, return an empty array [].
+    """
 
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-client = genai.Client(api_key=GEMINI_API_KEY)
-OCR_API_KEY = os.environ.get("OCR_API_KEY")
+    response = client.models.generate_content(
+        model="gemini-2.5-flash", contents=[instruction,extracted_text],
+        config=types.GenerateContentConfig(
+            thinking_config=types.ThinkingConfig(thinking_budget=0), # Disables thinking
+            temperature=0
+        ),
+    )
+    return response.text
 
-#'processed_receipts/test2_2_processed.jpg'
-#test_file = ocr_space_file(filename=file_path,api_key=OCR_API_KEY)
-#json_response = json.loads(test_file)
-#extracted_text = json_response['ParsedResults'][0]['ParsedText']
-extracted_text = """
-RECEIPT
-1x Chicken Soup
-2x Tomato Soup
-1x Crispy Chicken
-1x Mineral Water
-2x Ice Tea
-1x Lemon Juice
-1x Mango Juice
-TOTAL AMOUNT
-CASH
-CHANGE
-$ 45.00
-S
-15.00
-30.00
-1.00
-$
-S
-3.00
-7.00
-7.00
-$108.00
-$200.00
-$ 92.00
-THANK YOU
-- —
-"""
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        file_path = sys.argv[1]
+    else:
+        print("Usage: python my_script.py <file_path>")
 
-instruction = """
-Extract all individual item entries from the receipt. Respond only with a JSON array. Each item object must have "name" (string), "price" (number), and "quantity" (number).
-Example output:
-[
-  {
-    "name": "Milk (1 Gallon)",
-    "price": 3.49,
-    "quantity": 1
-  },
-  {
-    "name": "Bread (Wheat)",
-    "price": 2.99,
-    "quantity": 2
-  }
-]
-Do not include any additional text or markdown quotes. If no items are found, return an empty array [].
-"""
+    GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+    client = genai.Client(api_key=GEMINI_API_KEY)
+    OCR_API_KEY = os.environ.get("OCR_API_KEY")
 
-response = client.models.generate_content(
-    model="gemini-2.5-flash", contents=[instruction,extracted_text],
-    config=types.GenerateContentConfig(
-        thinking_config=types.ThinkingConfig(thinking_budget=0), # Disables thinking
-        temperature=0
-    ),
-)
-python_dict = json.loads(response.text)
-print(python_dict)
+    #'processed_receipts/test2_2_processed.jpg'
+    #test_file = ocr_space_file(filename=file_path,api_key=OCR_API_KEY)
+    #json_response = json.loads(test_file)
+    #extracted_text = json_response['ParsedResults'][0]['ParsedText']
+    extracted_text = """
+    RECEIPT
+    1x Chicken Soup
+    2x Tomato Soup
+    1x Crispy Chicken
+    1x Mineral Water
+    2x Ice Tea
+    1x Lemon Juice
+    1x Mango Juice
+    TOTAL AMOUNT
+    CASH
+    CHANGE
+    $ 45.00
+    S
+    15.00
+    30.00
+    1.00
+    $
+    S
+    3.00
+    7.00
+    7.00
+    $108.00
+    $200.00
+    $ 92.00
+    THANK YOU
+    - —
+    """
+
+    output = gemini_query(extracted_text)
+    python_dict = json.loads(output)
+    print(python_dict)
