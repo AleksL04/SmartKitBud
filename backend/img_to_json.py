@@ -1,8 +1,8 @@
 import requests
 import json
 import sys
-import config
 
+from config import *
 from google import genai
 from google.genai import types
 
