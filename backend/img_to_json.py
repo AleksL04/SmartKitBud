@@ -2,7 +2,7 @@ import requests
 import json
 import sys
 
-from config import *
+from config import GEMINI_API_KEY, OCR_API_KEY
 from google import genai
 from google.genai import types
 
