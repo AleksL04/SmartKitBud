@@ -18,7 +18,7 @@ if __name__ == "__main__":
         # --- IMPORTANT: Change this to a path to a real test image file ---
         # For example, create a dummy_receipt.jpg in your 'backend/uploads' folder
         # or specify a full path to an image file on your system.
-        dummy_image_name = "example_receipt.jpg" # Replace with your actual test image name
+        dummy_image_name = "test1.jpg" # Replace with your actual test image name
         image_file_path = Path(UPLOAD_DIR) / dummy_image_name
 
         if not Path(image_file_path).exists():
