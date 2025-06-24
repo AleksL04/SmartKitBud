@@ -1,7 +1,7 @@
 import requests
 import json
-import os
 import sys
+import config
 
 from google import genai
 from google.genai import types
@@ -65,9 +65,6 @@ if __name__ == "__main__":
         file_path = sys.argv[1]
     else:
         print("Usage: python my_script.py <file_path>")
-
-    OCR_API_KEY = os.environ.get("OCR_API_KEY")
-    GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
     #test_file = ocr_space_file(filename=file_path,api_key=OCR_API_KEY)
     #json_response = json.loads(test_file)
