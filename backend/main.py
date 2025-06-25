@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 from config import GEMINI_API_KEY, OCR_API_KEY, UPLOAD_DIR
+from format_json import format_json
 from img_to_json import process_image_to_receipt_json
 
 if __name__ == "__main__":
@@ -36,10 +37,18 @@ if __name__ == "__main__":
             gemini_api_key=GEMINI_API_KEY
         )
 
+        formated_items = format_json(extracted_items, GEMINI_API_KEY)
+
         print("\n--- Extracted Receipt Items (JSON Output) ---")
         # Use json.dumps for pretty printing the JSON output
         print(json.dumps(extracted_items, indent=2))
         print("--------------------------------------------")
+
+        print("\n--- Formated Receipt Items (JSON Output) ---")
+        # Use json.dumps for pretty printing the JSON output
+        print(json.dumps(formated_items, indent=2))
+        print("--------------------------------------------")
+
 
         if not extracted_items:
             print("No items were extracted. Check your image, API keys, and parsing logic.")
