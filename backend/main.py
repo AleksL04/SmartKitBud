@@ -33,7 +33,6 @@ if __name__ == "__main__":
     try:
         extracted_items = process_image_to_receipt_json(
             image_filepath=str(image_file_path),
-            ocr_api_key=OCR_API_KEY,
             gemini_api_key=GEMINI_API_KEY
         )
 

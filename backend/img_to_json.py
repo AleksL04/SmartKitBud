@@ -1,57 +1,81 @@
-import requests
 import json
 
 from google import genai
 from google.genai import types
 
 _GEMINI_INSTRUCTION = """
-Extract all individual item entries from the receipt. Respond only with a JSON array. Each item object must have "name" (string), "price" (number), and "quantity" (number).
+Extract all individual item entries from the receipt. Respond only with a JSON array. Each item object must have "name" (string), "price" (number), "quantity" (number), and "unit" (string).
+
+Specific instructions for items with quantities by weight or volume:
+- Identify any numerical value directly followed by a unit of weight (e.g., "LB", "lb", "LBS", "KG", "kg", "GR", "gr", "G", "g", "OZ", "oz") or volume (e.g., "ML", "ml", "L", "l", "GAL", "gal", "ea", "ct").
+- If such a specific quantity and unit are indicated for an item (e.g., "1.5 LB Pickles", "440GR Bread", "12 OZ Soda", "500G Coffee"), set the `quantity` field to the numerical value of that amount (e.g., 1.5, 440, 12, 500).
+- Extract the detected unit (e.g., "LB", "GR", "OZ", "g", "ml") and place it into the "unit" field. Do NOT append the unit to the "name" in this case.
+- For items that are discrete units (e.g., "Milk", "Bread") or where no specific unit of measure is listed (e.g., "by LB" without a specific weight), the "unit" field should be an empty string ("").
+- The `price` should always be the total price for that item line.
+- If an item is marked "by unit" (e.g., "by LB", "by KG", "by OZ") but no specific amount is listed, set the `quantity` to 1 and the "unit" field to the corresponding unit (e.g., "lb", "oz").
+
 Example output:
 [
   {
-    "name": "Milk (1 Gallon)",
+    "name": "Milk",
     "price": 3.49,
-    "quantity": 1
+    "quantity": 1,
+    "unit": ""
   },
   {
     "name": "Bread (Wheat)",
     "price": 2.99,
-    "quantity": 2
+    "quantity": 2,
+    "unit": ""
+  },
+  {
+    "name": "Pickles",
+    "price": 4.12,
+    "quantity": 1.5,
+    "unit": "lb"
+  },
+  {
+    "name": "Bread Lvovsky",
+    "price": 3.69,
+    "quantity": 440,
+    "unit": "gr"
+  },
+  {
+    "name": "Coca-Cola",
+    "price": 1.99,
+    "quantity": 12,
+    "unit": "oz"
+  },
+  {
+    "name": "Coffee",
+    "price": 8.50,
+    "quantity": 500,
+    "unit": "g"
+  },
+  {
+    "name": "Salads Mushroom Carrot",
+    "price": 6.22,
+    "quantity": 1,
+    "unit": "lb"
+  },
+  {
+    "name": "Candy",
+    "price": 3.00,
+    "quantity": 1,
+    "unit": "oz"
   }
 ]
 Do not include any additional text or markdown quotes. If no items are found, return an empty array [].
 """
 
-def _call_ocr_space_api(filename, overlay=False, api_key='helloworld', language='eng'):
-    """ OCR.space API request with local file.
-        Python3.5 - not tested on 2.7
-    :param filename: Your file path & name.
-    :param overlay: Is OCR.space overlay required in your response.
-                    Defaults to False.
-    :param api_key: OCR.space API key.
-                    Defaults to 'helloworld'.
-    :param language: Language code to be used in OCR.
-                    List of available language codes can be found on https://ocr.space/OCRAPI
-                    Defaults to 'en'.
-    :return: Result in JSON format.
-    """
-
-    payload = {'isOverlayRequired': overlay,
-               'apikey': api_key,
-               'language': language,
-               }
-    with open(filename, 'rb') as f:
-        r = requests.post('https://api.ocr.space/parse/image',
-                          files={filename: f},
-                          data=payload,
-                          )
-    return r.content.decode()
-
-def _call_gemini_api(extracted_text = "", api_key = ""):
+def _call_gemini_api_from_img(image_bytes, api_key = ""):
     client = genai.Client(api_key=api_key)
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash", contents=[_GEMINI_INSTRUCTION,extracted_text],
+        model="gemini-2.5-flash", contents=[_GEMINI_INSTRUCTION,types.Part.from_bytes(
+        data=image_bytes,
+        mime_type='image/jpeg',
+      )],
         config=types.GenerateContentConfig(
             thinking_config=types.ThinkingConfig(thinking_budget=0), # Disables thinking
             temperature=0
@@ -59,12 +83,14 @@ def _call_gemini_api(extracted_text = "", api_key = ""):
     )
     return response.text
 
-def process_image_to_receipt_json(image_filepath: str,ocr_api_key: str,gemini_api_key: str):
-    ocr_response_raw = _call_ocr_space_api(filename=image_filepath, api_key=ocr_api_key)
-    json_response = json.loads(ocr_response_raw)
+def process_image_to_receipt_json(image_filepath: str,gemini_api_key: str):
+    try:
+        with open(image_filepath, 'rb') as f:
+            image_bytes = f.read()
+    except FileNotFoundError:
+        print(f"Error: Image file not found at {image_filepath}. Please ensure the path is correct.")
+        exit()
 
-    extracted_text = json_response['ParsedResults'][0]['ParsedText']
-
-    gemini_output_raw = _call_gemini_api(extracted_text, gemini_api_key)
+    gemini_output_raw = _call_gemini_api_from_img(image_bytes, gemini_api_key)
     python_dict = json.loads(gemini_output_raw)
     return python_dict
