@@ -3,3 +3,4 @@ env/
 creds/
 old_c_code/
 .env
+__pycache__/
