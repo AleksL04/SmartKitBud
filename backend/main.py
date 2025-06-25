@@ -2,7 +2,7 @@ import sys
 import json
 from pathlib import Path
 
-from config import GEMINI_API_KEY, OCR_API_KEY, UPLOAD_DIR
+from config import GEMINI_API_KEY, UPLOAD_DIR
 from format_json import format_json_to_lowercase
 from img_to_json import process_image_to_receipt_json
 
