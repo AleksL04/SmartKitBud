@@ -56,7 +56,6 @@ if __name__ == "__main__":
         print(search_recipes_by_ingredients(['wheat', 'pork'], 1,SPOONTACULAR_API_KEY))
 
 
-
     except ValueError as e:
         print(f"Configuration Error: {e}")
         print("Please ensure your .env file is correctly set up with SUPABASE_URL, SUPABASE_KEY, GEMINI_API_KEY, and OCR_API_KEY.")

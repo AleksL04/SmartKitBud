@@ -1,4 +1,5 @@
 import requests
+import json
 
 # --- Configuration ---
 BASE_URL = "https://api.spoonacular.com"
