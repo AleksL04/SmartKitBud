@@ -2,7 +2,9 @@ import sys
 import json
 from pathlib import Path
 
-from config import GEMINI_API_KEY, UPLOAD_DIR
+from config import GEMINI_API_KEY, UPLOAD_DIR, SPOONTACULAR_API_KEY
+
+from spoontac import search_recipes_by_ingredients
 from format_json import format_json_to_lowercase
 from img_to_json import process_image_to_receipt_json
 
@@ -50,6 +52,10 @@ if __name__ == "__main__":
 
         if not extracted_items:
             print("No items were extracted. Check your image, API keys, and parsing logic.")
+
+        print(search_recipes_by_ingredients(['wheat', 'pork'], 1,SPOONTACULAR_API_KEY))
+
+
 
     except ValueError as e:
         print(f"Configuration Error: {e}")
