@@ -21,6 +21,8 @@ Maintain the exact JSON structure. Respond only with a JSON array. Do not includ
 """
 
 def format_json_to_lowercase(raw_json_string: str, api_key: str):
+    
+
     client = genai.Client(api_key=api_key)
 
     response = client.models.generate_content(
