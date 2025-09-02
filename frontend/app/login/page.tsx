@@ -29,8 +29,8 @@ export default function Login() {
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (event.key === "Enter") {
-      event.preventDefault(); // Prevent form submission
-      passwordInputRef.current?.focus(); // Focus the password input
+      event.preventDefault(); 
+      passwordInputRef.current?.focus();
     }
   };
 
