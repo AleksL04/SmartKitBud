@@ -5,3 +5,4 @@ __pycache__/
 tests
 backend-old
 node_modules
+pb_data
