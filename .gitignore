@@ -1,7 +1,5 @@
-env/
 .vscode/
-.env
-__pycache__
 tests
 backend-old
 node_modules
+.env
