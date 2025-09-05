@@ -12,7 +12,7 @@ const {
 } = require('./functions.js');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3005;
 const HOST = '127.0.0.1';
 
 // The API key is passed directly as a string, not in an object.

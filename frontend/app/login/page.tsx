@@ -2,6 +2,7 @@
 
 import { useState, useRef, FormEvent} from "react";
 import PocketBase from "pocketbase";
+import { useRouter } from 'next/navigation';
 
 const pb = new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090');
 
@@ -11,6 +12,9 @@ export default function AuthPage() {
     const [password, setPassword] = useState("");
     const [passwordConfirm, setPasswordConfirm] = useState("");
     const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const router = useRouter();
+
 
     const passwordInputRef = useRef<HTMLInputElement>(null);
     const passwordConfirmInputRef = useRef<HTMLInputElement>(null);
@@ -18,17 +22,28 @@ export default function AuthPage() {
 
 
     const handleLogin = async () => {
-        // ... (rest of the function is unchanged)
+        setIsLoading(true);
+        setError(null);
         try {
-            await pb.collection('users').authWithPassword(email, password);
-            setError(null);
-            alert("Login successful!");
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                // Use the error message from the API response
+                throw new Error(data.error || 'Failed to log in.');
+            }
+            
+            router.push('/dashboard');
+
         } catch (err: unknown) {
-            setError(
-                typeof err === "object" && err !== null && "message" in err
-                    ? String((err as { message?: unknown }).message)
-                    : "Failed to log in."
-            );
+            setError(err instanceof Error ? err.message : "An unknown error occurred.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -127,7 +142,7 @@ export default function AuthPage() {
                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-500 disabled:cursor-not-allowed"
                         disabled={isButtonDisabled}
                     >
-                        {isSignUp ? "Sign Up" : "Login"}
+                        {isLoading ? 'Processing...' : (isSignUp ? "Sign Up" : "Login")}
                     </button>
                 </form>
 
