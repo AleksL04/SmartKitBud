@@ -1,44 +1,52 @@
 import { NextResponse } from 'next/server';
-import PocketBase from 'pocketbase';
-import { serialize } from 'cookie';
+import { encrypt } from '../../lib/session'; // Your session encryption utility
+import { cookies } from 'next/headers';
 
-// It's recommended to move your PocketBase initialization to a shared lib file
-const pb = new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090');
+// It's best practice to store your external API URL in an environment variable
+const AUTH_API_URL = process.env.AUTH_API_URL || 'http://127.0.0.1:8090/api/collections/users/auth-with-password';
 
 export async function POST(request: Request) {
-  try {
-    const { email, password } = await request.json();
+    const body = await request.json();
+    const { email, password } = body;
 
-    // 1. Authenticate with PocketBase
-    const authData = await pb.collection('users').authWithPassword(email, password);
+    try {
+        // Step 1: Securely send credentials to your authentication service (e.g., PocketBase)
+        const authResponse = await fetch(AUTH_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ identity: email, password }),
+        });
 
-    // 2. Serialize the auth token and other user data into a cookie
-    const cookie = serialize('pb_auth', pb.authStore.exportToCookie(), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax', // 'strict' can be too restrictive for some auth flows
-      path: '/',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-    });
+        // If credentials are wrong, the service will return an error
+        if (!authResponse.ok) {
+            return NextResponse.json({ error: 'Invalid username or password.' }, { status: 401 });
+        }
 
-    // 3. Set the cookie in the response headers
-    const response = NextResponse.json({ 
-      message: 'Login successful', 
-      user: authData.record 
-    });
-    response.headers.set('Set-Cookie', cookie);
+        const authData = await authResponse.json();
+        const { record: user, token: externalApiToken } = authData;
 
-    return response;
+        // Step 2: Create the secure, encrypted session if authentication succeeds
+        if (user && externalApiToken) {
+            const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+            const sessionPayload = { user, externalApiToken, expires };
+            const session = await encrypt(sessionPayload);
 
-  } catch (err: unknown) {
-    console.error('Login API Error:', err);
-    // PocketBase often returns detailed error objects
-    const errorMessage = (typeof err === "object" && err !== null && "message" in err
-                    ? String((err as { message?: unknown }).message)
-                    : "Invalid credentials.");
-    return new NextResponse(
-      JSON.stringify({ error: errorMessage }),
-      { status: 401 }
-    );
-  }
+            // Step 3: Set the HttpOnly cookie. The browser is now authenticated.
+            (await cookies()).set('session', session, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                expires: expires,
+                path: '/',
+            });
+
+            return NextResponse.json({ success: true, user });
+        }
+
+    } catch (error) {
+        console.error('Login error:', error);
+        return NextResponse.json({ error: 'An internal server error occurred.' }, { status: 500 });
+    }
+    
+    // Fallback error if something unexpected happens
+    return NextResponse.json({ error: 'Authentication failed.' }, { status: 401 });
 }

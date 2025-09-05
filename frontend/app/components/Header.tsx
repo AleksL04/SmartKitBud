@@ -2,18 +2,18 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import LogoutButton from "./LogoutButton";
 
-// This is a Server Component, so we can check cookies on the server.
 export default async function Header() {
-  // FIX: Added 'await' here. The cookies() function is asynchronous.
-  const cookieStore = await cookies();
-  const authToken = cookieStore.get("pb_auth")?.value;
-  const isLoggedIn = !!authToken;
+  // ✅ FIX: Call cookies() directly without await
+  const cookieStore = cookies();
+
+  // ✅ FIX: Look for the correct 'session' cookie
+  const sessionCookie = (await cookieStore).get("session")?.value;
+  const isLoggedIn = !!sessionCookie;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo/Home Link */}
           <div className="flex-shrink-0">
             <Link
               href="/"
@@ -22,8 +22,6 @@ export default async function Header() {
               MyApp
             </Link>
           </div>
-
-          {/* Navigation Links */}
           <div className="flex items-center space-x-6">
             <Link
               href="/"
@@ -38,7 +36,6 @@ export default async function Header() {
               Upload
             </Link>
 
-            {/* Conditional Login/Logout Button */}
             {isLoggedIn ? (
               <LogoutButton />
             ) : (
@@ -55,4 +52,3 @@ export default async function Header() {
     </header>
   );
 }
-

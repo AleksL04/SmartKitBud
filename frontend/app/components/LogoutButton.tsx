@@ -6,11 +6,12 @@ export default function LogoutButton() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    // Call the logout API route
-    await fetch("/api/logout");
+    // ✅ FIX: Specify method: 'POST' to match the API route
+    await fetch("/api/logout", {
+      method: "POST",
+    });
 
-    // After logging out, redirect to the login page and refresh the page
-    // to ensure the server-rendered components update.
+    // This part is perfect
     router.push("/login");
     router.refresh();
   };
