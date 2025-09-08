@@ -1,158 +1,205 @@
 "use client"; // This is a client component
 
 import { useState, useRef, FormEvent } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Link,
+  CircularProgress,
+  Alert,
+} from "@mui/material";
 
 export default function AuthPage() {
-    const [isSignUp, setIsSignUp] = useState(false);
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [passwordConfirm, setPasswordConfirm] = useState("");
-    const [error, setError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const router = useRouter();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-    const passwordInputRef = useRef<HTMLInputElement>(null);
-    const passwordConfirmInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
+  const passwordConfirmInputRef = useRef<HTMLInputElement>(null);
 
-    // This function calls the secure backend route
-    const handleLogin = async () => {
-        setIsLoading(true);
-        setError(null);
-        setSuccessMessage(null);
-        try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            });
+  // This function calls the secure backend route
+  const handleLogin = async () => {
+    setIsLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to log in.');
-            }
-            
-            // On success, redirect to the dashboard
-            router.push('/dashboard');
-            router.refresh(); // Forces a refresh to update server-side auth checks
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to log in.");
+      }
 
-        } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : "An unknown error occurred.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
+      // On success, redirect to the dashboard
+      router.push("/dashboard");
+      router.refresh(); // Forces a refresh to update server-side auth checks
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const handleSignUp = async () => {
-        setIsLoading(true);
-        setError(null);
-        setSuccessMessage(null);
+  const handleSignUp = async () => {
+    setIsLoading(true);
+    setError(null);
+    setSuccessMessage(null);
 
-        if (password !== passwordConfirm) {
-            setError("Passwords do not match.");
-            setIsLoading(false);
-            return;
-        }
+    if (password !== passwordConfirm) {
+      setError("Passwords do not match.");
+      setIsLoading(false);
+      return;
+    }
 
-        try {
-            // Also uses a secure backend route
-            const response = await fetch('/api/signup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, passwordConfirm }),
-            });
+    try {
+      // Also uses a secure backend route
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, passwordConfirm }),
+      });
 
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.error || 'Failed to sign up.');
-            }
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to sign up.");
+      }
 
-            // On success, show a message and switch to the login form
-            setSuccessMessage("Account created! Please log in.");
-            setIsSignUp(false);
-            
-        } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : "An unknown error occurred.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-    
-    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (isSignUp) {
-            handleSignUp();
-        } else {
-            handleLogin();
-        }
-    };
-        
-    const isButtonDisabled = isLoading || !email.trim() || !password.trim() || (isSignUp && !passwordConfirm.trim());
+      // On success, show a message and switch to the login form
+      setSuccessMessage("Account created! Please log in.");
+      setIsSignUp(false);
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    return (
-        <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-            <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start w-full">
-                <h1 className="text-3xl font-bold">{isSignUp ? "Create an Account" : "Log In"}</h1>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full max-w-xs mt-4">
-                    <input
-                        type="email"
-                        placeholder="email"
-                        aria-label="email"
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <input
-                        ref={passwordInputRef}
-                        type="password"
-                        placeholder="password"
-                        aria-label="password"
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                    {isSignUp && (
-                        <input
-                            ref={passwordConfirmInputRef}
-                            type="password"
-                            placeholder="confirm password"
-                            aria-label="confirm password"
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
-                            value={passwordConfirm}
-                            onChange={(e) => setPasswordConfirm(e.target.value)}
-                            required
-                        />
-                    )}
-                    {error && <p className="text-red-500 text-sm">{error}</p>}
-                    {successMessage && <p className="text-green-500 text-sm">{successMessage}</p>}
-                    <button
-                        type="submit"
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-500 disabled:cursor-not-allowed"
-                        disabled={isButtonDisabled}
-                    >
-                        {isLoading ? 'Processing...' : (isSignUp ? "Sign Up" : "Login")}
-                    </button>
-                </form>
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (isSignUp) {
+      handleSignUp();
+    } else {
+      handleLogin();
+    }
+  };
 
-                <div className="text-center mt-4">
-                    <p>
-                        {isSignUp ? "Already have an account? " : "Don't have an account? "}
-                        <button
-                            onClick={() => {
-                                setIsSignUp(!isSignUp);
-                                setError(null);
-                                setSuccessMessage(null);
-                            }}
-                            className="text-blue-500 hover:underline focus:outline-none"
-                        >
-                            {isSignUp ? "Log In" : "Sign Up"}
-                        </button>
-                    </p>
-                </div>
-            </main>
-        </div>
-    );
+  const isButtonDisabled =
+    isLoading ||
+    !email.trim() ||
+    !password.trim() ||
+    (isSignUp && !passwordConfirm.trim());
+
+  return (
+    <Container component="main" maxWidth="xs">
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
+        <Typography component="h1" variant="h5">
+          {isSignUp ? "Create an Account" : "Welcome Back"}
+        </Typography>
+        <Typography component="p" sx={{ mt: 1, mb: 2 }}>
+          {isSignUp
+            ? "Get started with your new account."
+            : "Please enter your details to log in."}
+        </Typography>
+
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            name="email"
+            autoComplete="email"
+            autoFocus
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            inputRef={passwordInputRef}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {isSignUp && (
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="passwordConfirm"
+              label="Confirm Password"
+              type="password"
+              id="passwordConfirm"
+              inputRef={passwordConfirmInputRef}
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+            />
+          )}
+
+          {error && <Alert severity="error">{error}</Alert>}
+          {successMessage && <Alert severity="success">{successMessage}</Alert>}
+
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+            disabled={isButtonDisabled}
+          >
+            {isLoading ? (
+              <CircularProgress size={24} />
+            ) : isSignUp ? (
+              "Create Account"
+            ) : (
+              "Log In"
+            )}
+          </Button>
+          <Typography variant="body2" align="center">
+            {isSignUp ? "Already have an account? " : "Don't have an account? "}
+            <Link
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsSignUp(!isSignUp);
+                setError(null);
+                setSuccessMessage(null);
+              }}
+            >
+              {isSignUp ? "Log In" : "Sign Up"}
+            </Link>
+          </Typography>
+        </Box>
+      </Box>
+    </Container>
+  );
 }

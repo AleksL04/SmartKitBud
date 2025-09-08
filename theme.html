@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurora UI - Style Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <script>
+        // Configuration for TailwindCSS JIT
+        tailwind.config = {
+            darkMode: 'class', // Enable dark mode using a class
+            theme: {
+                extend: {
+                    // You can extend your theme here if needed
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom gradient text for light mode */
+        .gradient-text {
+            background-image: linear-gradient(to right, #4F46E5, #06B6D4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        /* Custom gradient text for dark mode */
+        .dark .gradient-text {
+             background-image: linear-gradient(to right, #818CF8, #22D3EE);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200 transition-colors duration-300">
+
+    <!-- Header -->
+    <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <a href="#" class="text-2xl font-bold text-slate-900 dark:text-white">Aurora UI</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#colors" class="text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 text-sm font-medium">Colors</a>
+                    <a href="#typography" class="text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 text-sm font-medium">Typography</a>
+                    <a href="#components" class="text-slate-600 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 text-sm font-medium">Components</a>
+                    <a href="#" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition-shadow shadow-sm hover:shadow-md">
+                        Login
+                    </a>
+                    <!-- THEME TOGGLE BUTTON -->
+                    <button id="theme-toggle" class="p-2 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        <svg id="theme-icon-light" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <svg id="theme-icon-dark" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight gradient-text mb-4">Aurora UI</h1>
+            <p class="max-w-2xl mx-auto text-lg text-slate-500 dark:text-slate-400">A modern, clean, and professional design system for your application.</p>
+        </div>
+
+        <!-- Section: Color Palette -->
+        <section id="colors" class="mb-16">
+            <h2 class="text-3xl font-bold text-slate-800 dark:text-slate-200 border-b border-slate-300 dark:border-slate-700 pb-2 mb-6">Color Palette</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="font-semibold text-xl mb-4 text-slate-800 dark:text-slate-200">Light Mode</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        <div class="text-center"><div class="w-full h-24 bg-slate-50 rounded-lg shadow-inner border border-slate-200"></div><h3 class="font-semibold mt-2">Cloud</h3><p class="text-sm text-slate-500">bg-slate-50</p></div>
+                        <div class="text-center"><div class="w-full h-24 bg-white rounded-lg shadow-sm border border-slate-200"></div><h3 class="font-semibold mt-2">Frost</h3><p class="text-sm text-slate-500">bg-white</p></div>
+                        <div class="text-center"><div class="w-full h-24 bg-slate-800 rounded-lg"></div><h3 class="font-semibold mt-2">Slate</h3><p class="text-sm text-slate-500">text-slate-800</p></div>
+                        <div class="text-center"><div class="w-full h-24 bg-slate-500 rounded-lg"></div><h3 class="font-semibold mt-2">Graphite</h3><p class="text-sm text-slate-500">text-slate-500</p></div>
+                        <div class="text-center"><div class="w-full h-24 bg-indigo-600 rounded-lg"></div><h3 class="font-semibold mt-2">Deep Indigo</h3><p class="text-sm text-slate-500">bg-indigo-600</p></div>
+                        <div class="text-center"><div class="w-full h-24 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-lg"></div><h3 class="font-semibold mt-2">Morning Sky</h3><p class="text-sm text-slate-500">gradient</p></div>
+                    </div>
+                </div>
+                 <div>
+                    <h3 class="font-semibold text-xl mb-4 text-slate-800 dark:text-slate-200">Dark Mode</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        <div class="text-center"><div class="w-full h-24 bg-slate-900 rounded-lg shadow-inner border border-slate-800"></div><h3 class="font-semibold mt-2">Midnight</h3><p class="text-sm text-slate-400">dark:bg-slate-900</p></div>
+                        <div class="text-center"><div class="w-full h-24 bg-slate-800 rounded-lg shadow-sm border border-slate-700"></div><h3 class="font-semibold mt-2">Asphalt</h3><p class="text-sm text-slate-400">dark:bg-slate-800</p></div>
+                        <div class="text-center"><div class="w-full h-24 bg-slate-200 rounded-lg"></div><h3 class="font-semibold mt-2">Ghost</h3><p class="text-sm text-slate-400">dark:text-slate-200</p></div>
+                        <div class="text-center"><div class="w-full h-24 bg-slate-400 rounded-lg"></div><h3 class="font-semibold mt-2">Smoke</h3><p class="text-sm text-slate-400">dark:text-slate-400</p></div>
+                        <div class="text-center"><div class="w-full h-24 bg-indigo-500 rounded-lg"></div><h3 class="font-semibold mt-2">Bright Indigo</h3><p class="text-sm text-slate-400">dark:bg-indigo-500</p></div>
+                        <div class="text-center"><div class="w-full h-24 bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-lg"></div><h3 class="font-semibold mt-2">Evening Sky</h3><p class="text-sm text-slate-400">gradient</p></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Typography -->
+        <section id="typography" class="mb-16">
+            <h2 class="text-3xl font-bold text-slate-800 dark:text-slate-200 border-b border-slate-300 dark:border-slate-700 pb-2 mb-6">Typography</h2>
+            <div class="space-y-6">
+                <div><p class="text-sm text-slate-500 dark:text-slate-400 mb-1">Heading 1 (H1)</p><h1 class="text-4xl font-bold">The quick brown fox jumps over the lazy dog.</h1></div>
+                <div><p class="text-sm text-slate-500 dark:text-slate-400 mb-1">Heading 2 (H2)</p><h2 class="text-2xl font-bold">The quick brown fox jumps over the lazy dog.</h2></div>
+                <div><p class="text-sm text-slate-500 dark:text-slate-400 mb-1">Body Text</p><p class="text-base max-w-prose">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam.</p></div>
+                <div><p class="text-sm text-slate-500 dark:text-slate-400 mb-1">Label / Small Text</p><p class="text-sm text-slate-500 dark:text-slate-400">This is a small label for UI elements.</p></div>
+            </div>
+        </section>
+
+        <!-- Section: Components -->
+        <section id="components">
+            <h2 class="text-3xl font-bold text-slate-800 dark:text-slate-200 border-b border-slate-300 dark:border-slate-700 pb-2 mb-6">Components</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div>
+                    <h3 class="font-semibold text-xl mb-4 text-slate-800 dark:text-slate-200">Login Form</h3>
+                    <div class="bg-white dark:bg-slate-800 p-8 rounded-lg shadow-md border border-slate-200 dark:border-slate-700">
+                        <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-200 text-center mb-2">Welcome Back</h1>
+                        <p class="text-slate-500 dark:text-slate-400 text-center mb-6">Enter your details to log in.</p>
+                        <form class="flex flex-col gap-4">
+                            <div>
+                                <label for="email" class="text-sm font-medium text-slate-800 dark:text-slate-200 mb-1 block">Email</label>
+                                <input id="email" type="email" placeholder="you@example.com" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label for="password" class="text-sm font-medium text-slate-800 dark:text-slate-200 mb-1 block">Password</label>
+                                <input id="password" type="password" placeholder="••••••••" class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-md text-sm shadow-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+                            </div>
+                            <button type="submit" class="w-full inline-flex justify-center py-2 px-4 mt-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Log In</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="font-semibold text-xl mb-4 text-slate-800 dark:text-slate-200">Buttons</h3>
+                        <div class="flex flex-wrap items-center gap-4">
+                            <button class="px-4 py-2 text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Primary</button>
+                            <button class="px-4 py-2 text-sm font-medium rounded-md text-slate-700 bg-slate-200 hover:bg-slate-300 dark:text-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-400">Secondary</button>
+                            <button class="px-4 py-2 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">Destructive</button>
+                            <button class="px-4 py-2 text-sm font-medium rounded-md text-white bg-slate-400 dark:bg-slate-600 cursor-not-allowed" disabled>Disabled</button>
+                        </div>
+                    </div>
+                    <div>
+                         <h3 class="font-semibold text-xl mb-4 text-slate-800 dark:text-slate-200">Card</h3>
+                         <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md border border-slate-200 dark:border-slate-700">
+                             <h4 class="font-bold text-slate-800 dark:text-slate-200">Card Title</h4>
+                             <p class="text-slate-500 dark:text-slate-400 mt-2 text-sm">This is a standard card component used to group related information in a clean, containerized format.</p>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <script>
+        // JavaScript to handle theme toggling
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIconLight = document.getElementById('theme-icon-light');
+        const themeIconDark = document.getElementById('theme-icon-dark');
+        const htmlEl = document.documentElement;
+
+        // Function to set the theme
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                htmlEl.classList.add('dark');
+                themeIconLight.classList.remove('hidden');
+                themeIconDark.classList.add('hidden');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                htmlEl.classList.remove('dark');
+                themeIconLight.classList.add('hidden');
+                themeIconDark.classList.remove('hidden');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Event listener for the toggle button
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+
+        // On page load, set the theme based on localStorage or system preference
+        const savedTheme = localStorage.getItem('theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else {
+            setTheme(systemPrefersDark ? 'dark' : 'light');
+        }
+    </script>
+
+</body>
+</html>
+

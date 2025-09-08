@@ -1,8 +1,12 @@
+import { Container, Typography } from "@mui/material";
+
 export default function DashboardPage() {
-    return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-            <h1 className="text-4xl font-bold mb-6">Dashboard</h1>
-            <p className="text-lg text-gray-700">Welcome to your dashboard!</p>
-        </div>
-    );
+  return (
+    <Container>
+      <Typography variant="h4" component="h1" gutterBottom>
+        Dashboard
+      </Typography>
+      <Typography variant="body1">Welcome to your dashboard!</Typography>
+    </Container>
+  );
 }

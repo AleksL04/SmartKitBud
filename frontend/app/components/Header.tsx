@@ -1,54 +1,170 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { cookies } from "next/headers";
 import LogoutButton from "./LogoutButton";
+import ThemeToggle from "./ThemeToggle";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  Container,
+  IconButton,
+  Menu,
+  MenuItem,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 
-export default async function Header() {
-  // ✅ FIX: Call cookies() directly without await
-  const cookieStore = cookies();
+const pages = [
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Upload", href: "/upload" },
+];
 
-  // ✅ FIX: Look for the correct 'session' cookie
-  const sessionCookie = (await cookieStore).get("session")?.value;
-  const isLoggedIn = !!sessionCookie;
+export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+
+  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElNav(event.currentTarget);
+  };
+
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex-shrink-0">
-            <Link
-              href="/"
-              className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
-            >
-              MyApp
-            </Link>
-          </div>
-          <div className="flex items-center space-x-6">
-            <Link
-              href="/"
-              className="text-gray-600 hover:text-gray-900 text-sm font-medium"
-            >
-              Home
-            </Link>
-            <Link
-              href="/upload"
-              className="text-gray-600 hover:text-gray-900 text-sm font-medium"
-            >
-              Upload
-            </Link>
+    <AppBar
+      position="fixed"
+      elevation={0}
+      sx={{
+        backdropFilter: "blur(12px)",
+        backgroundColor: (theme) =>
+          theme.palette.mode === "dark"
+            ? "rgba(30, 30, 30, 0.75)"
+            : "rgba(255, 255, 255, 0.75)",
+        borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
+        color: "text.primary",
+      }}
+    >
+      <Container maxWidth="xl">
+        <Toolbar disableGutters>
+          {/* LOGO - DESKTOP */}
+          <Typography
+            variant="h6"
+            noWrap
+            component={Link}
+            href="/"
+            sx={{
+              mr: 2,
+              display: { xs: "none", md: "flex" },
+              fontFamily: "monospace",
+              fontWeight: 700,
+              letterSpacing: ".3rem",
+              color: "inherit",
+              textDecoration: "none",
+            }}
+          >
+            SmartKitchenBuddy
+          </Typography>
 
+          {/* MOBILE MENU */}
+          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+            <IconButton
+              size="large"
+              aria-label="navigation menu"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleOpenNavMenu}
+              color="inherit"
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{
+                display: { xs: "block", md: "none" },
+              }}
+            >
+              {pages.map((page) => (
+                <MenuItem
+                  key={page.label}
+                  onClick={handleCloseNavMenu}
+                  component={Link}
+                  href={page.href}
+                >
+                  <Typography textAlign="center">{page.label}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+
+          {/* LOGO - MOBILE */}
+          <Typography
+            variant="h5"
+            noWrap
+            component={Link}
+            href="/"
+            sx={{
+              mr: 2,
+              display: { xs: "flex", md: "none" },
+              flexGrow: 1,
+              fontFamily: "monospace",
+              fontWeight: 700,
+              letterSpacing: ".3rem",
+              color: "inherit",
+              textDecoration: "none",
+            }}
+          >
+            SmartKitchenBuddy
+          </Typography>
+
+          {/* LINKS - DESKTOP */}
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
+            {pages.map((page) => (
+              <Button
+                key={page.label}
+                component={Link}
+                href={page.href}
+                onClick={handleCloseNavMenu}
+                sx={{ my: 2, color: "inherit", display: "block" }}
+              >
+                {page.label}
+              </Button>
+            ))}
+          </Box>
+
+          {/* BUTTONS - RIGHT SIDE */}
+          <Box sx={{ flexGrow: 0, display: "flex", alignItems: "center" }}>
             {isLoggedIn ? (
               <LogoutButton />
             ) : (
-              <Link
+              <Button
+                component={Link}
                 href="/login"
-                className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-shadow shadow-sm hover:shadow-md"
+                variant="contained"
+                color="primary"
+                sx={{ mr: 1 }}
               >
                 Login
-              </Link>
+              </Button>
             )}
-          </div>
-        </div>
-      </div>
-    </header>
+            <ThemeToggle />
+          </Box>
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }

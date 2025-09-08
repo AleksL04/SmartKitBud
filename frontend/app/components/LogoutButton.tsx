@@ -1,27 +1,28 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Button } from "@mui/material";
 
 export default function LogoutButton() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    // ✅ FIX: Specify method: 'POST' to match the API route
     await fetch("/api/logout", {
       method: "POST",
     });
 
-    // This part is perfect
     router.push("/login");
     router.refresh();
   };
 
   return (
-    <button
+    <Button
       onClick={handleLogout}
-      className="bg-red-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-600 transition-shadow shadow-sm hover:shadow-md"
+      variant="contained"
+      color="secondary"
+      sx={{ mr: 1 }}
     >
       Logout
-    </button>
+    </Button>
   );
 }
