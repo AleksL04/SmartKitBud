@@ -110,7 +110,6 @@ app.post('/scan-receipt', authenticateUser, async (req, res) => {
             console.error("Failed to parse JSON from AI response:", formattedJsonString);
             throw new Error("AI returned a response that was not valid JSON.");
         }
-
         res.status(200).json({ text: finalJson });
 
     } catch (err) {

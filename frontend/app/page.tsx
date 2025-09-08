@@ -26,7 +26,6 @@ export default function AboutPage() {
           Never wonder what to cook again. Keep track of your ingredients, get smart recipe suggestions, and simplify your grocery trips.
         </Typography>
 
-        {/* --- MODIFIED LAYOUT SECTION --- */}
         <Box
           sx={{
             my: 3,
