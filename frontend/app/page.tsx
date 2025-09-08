@@ -69,12 +69,10 @@ export default function AboutPage() {
               Upload Your Receipts
             </Typography>
             <Typography variant="body2">
-              Simply upload a photo of your grocery receipt, and we'll automatically add the items to your inventory.
+              Simply upload a photo of your grocery receipt, and we will automatically add the items to your inventory.
             </Typography>
           </Paper>
         </Box>
-        {/* --- END MODIFIED LAYOUT SECTION --- */}
-
         <Button
           component={Link}
           href="/login"
