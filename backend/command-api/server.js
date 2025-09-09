@@ -104,7 +104,7 @@ app.post('/scan-receipt', authenticateUser, async (req, res) => {
         console.log("[3/3] Classifying, normalizing, and categorizing items...");
         const finalJsonString = await classify_and_normalize_items(ai, formattedJsonString);
 
-        console.log(finalJsonString)
+        //console.log(finalJsonString)
         
         console.log("All AI processing complete. Parsing final JSON...");
 
