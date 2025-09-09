@@ -204,19 +204,19 @@ export default function Upload() {
                 {extractedItems.map((item, index) => (
                   <Box key={index}>
                     <Grid container spacing={2} sx={{ alignItems: 'center', mb: 2 }}>
-                      <Grid item xs={12} sm={5}>
+                      <Grid>
                         <TextField fullWidth label="Item Name" name="name" value={item.name} onChange={(e) => handleItemChange(index, 'name', e.target.value)} />
                       </Grid>
-                      <Grid item xs={6} sm={2}>
+                      <Grid>
                         <TextField fullWidth label="Price" name="price" type="number" value={item.price} onChange={(e) => handleItemChange(index, 'price', e.target.value)} />
                       </Grid>
-                      <Grid item xs={6} sm={2}>
+                      <Grid>
                         <TextField fullWidth label="Quantity" name="quantity" type="number" value={item.quantity} onChange={(e) => handleItemChange(index, 'quantity', e.target.value)} />
                       </Grid>
-                      <Grid item xs={12} sm={2}>
+                      <Grid>
                         <TextField fullWidth label="Unit" name="unit" value={item.unit} onChange={(e) => handleItemChange(index, 'unit', e.target.value)} />
                       </Grid>
-                      <Grid item xs={12} sm={1} sx={{ textAlign: 'center' }}>
+                      <Grid sx={{ textAlign: 'center' }}>
                         <IconButton aria-label="delete" onClick={() => handleRemoveItem(index)}>
                           <DeleteIcon />
                         </IconButton>
