@@ -120,7 +120,45 @@ async function format_json_to_lowercase(ai, raw_json_string) {
     return response1.text;
 }
 
+async function classify_and_normalize_items(ai, formatted_json_string) {
+  const _GEMINI_INSTRUCTION = `
+  You are an intelligent grocery receipt processing assistant. Your task is to analyze a JSON array of receipt items and enrich it.
+
+  For each item in the input array, perform the following actions:
+  1.  **Classification**: Determine if the item is a 'Food' item or a 'Non-Food' item.
+  2.  **Normalization**: If it is a food item, convert its name into a simple, generic, and common name (e.g., "hss avcdo org" becomes "avocado").
+  3.  **Categorization**: Assign a relevant grocery category to the food item from this list: Produce, Dairy & Eggs, Meat & Seafood, Bakery & Bread, Pantry, Frozen Foods, Beverages, Snacks, Household, Personal Care, Other.
+
+  Your response must be ONLY a valid JSON array containing objects for the **food items only**. Discard all non-food items.
+
+  Crucially, each output object must preserve the original "price", "quantity", and "unit" from the input, and have the following structure:
+  {
+    "name": "The normalized name",
+    "category": "The assigned category",
+    "price": number,
+    "quantity": number,
+    "unit": "string"
+  }
+
+  Do not include any additional text or markdown quotes. If no food items are found, return an empty array [].
+  `;
+  const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [
+          _GEMINI_INSTRUCTION,
+          formatted_json_string
+      ],
+      config: {
+          thinkingConfig: {
+              thinkingBudget: 0
+          }
+      }
+  });
+  return response.text;
+}
+
 module.exports = {
     process_image_to_receipt_json,
-    format_json_to_lowercase
+    format_json_to_lowercase,
+    classify_and_normalize_items
 };

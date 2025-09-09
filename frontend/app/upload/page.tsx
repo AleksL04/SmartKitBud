@@ -13,12 +13,16 @@ import {
   CardContent,
   CardActions,
   Divider,
-  IconButton, // Import IconButton
+  IconButton,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 
 import { styled } from "@mui/material/styles";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import DeleteIcon from "@mui/icons-material/Delete"; // Import the Delete icon
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -32,12 +36,36 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-// Type definition for a single receipt item
+const categories = [
+  "Produce",
+  "Dairy & Eggs",
+  "Meat & Seafood",
+  "Bakery & Bread",
+  "Pantry",
+  "Frozen Foods",
+  "Beverages",
+  "Snacks",
+  "Household",
+  "Personal Care",
+  "Other",
+];
+
+// Type for the items after being processed by the client
 interface ReceiptItem {
   name: string;
   price: number;
   quantity: number;
   unit: string;
+  category: string;
+}
+
+// Type for the raw items returned from the external API
+interface ExtractedItem {
+  name: string;
+  price: number;
+  quantity: number;
+  unit: string;
+  category?: string; // Category is optional from the API
 }
 
 export default function Upload() {
@@ -79,16 +107,33 @@ export default function Upload() {
       console.log("Full server response object:", result);
 
       if (!response.ok) {
-        throw new Error(result.error || "An unknown error occurred during processing.");
+        throw new Error(
+          result.error || "An unknown error occurred during processing."
+        );
       }
 
-      const items = result.text;
+      // --- THIS IS THE FIX ---
+      // It now correctly uses the category from the API, defaulting to 'Other' if it's missing or invalid.
+      const items: ReceiptItem[] = (result.text as ExtractedItem[]).map(
+        (item) => ({
+          ...item,
+          category:
+            item.category && categories.includes(item.category)
+              ? item.category
+              : "Other",
+        })
+      );
+      // --- END OF FIX ---
 
       if (Array.isArray(items) && items.length > 0) {
-        setSuccessMessage(`Successfully extracted ${items.length} items! Please review below.`);
+        setSuccessMessage(
+          `Successfully extracted ${items.length} items! Please review below.`
+        );
         setExtractedItems(items);
       } else {
-        setSuccessMessage("File processed, but no items were found in the response.");
+        setSuccessMessage(
+          "File processed, but no items were found in the response."
+        );
         setExtractedItems([]);
       }
     } catch (err: unknown) {
@@ -102,23 +147,29 @@ export default function Upload() {
       setIsLoading(false);
     }
   };
-  
-  const handleItemChange = (index: number, field: keyof ReceiptItem, value: string | number) => {
+
+  const handleItemChange = (
+    index: number,
+    field: keyof ReceiptItem,
+    value: string | number
+  ) => {
     const updatedItems = [...extractedItems];
     const itemToUpdate = { ...updatedItems[index] };
-    
-    if (field === 'price' || field === 'quantity') {
+
+    if (field === "price" || field === "quantity") {
       itemToUpdate[field] = parseFloat(value as string) || 0;
     } else {
       itemToUpdate[field] = value as string;
     }
-    
+
     updatedItems[index] = itemToUpdate;
     setExtractedItems(updatedItems);
   };
 
   const handleRemoveItem = (indexToRemove: number) => {
-    setExtractedItems(prevItems => prevItems.filter((_, index) => index !== indexToRemove));
+    setExtractedItems((prevItems) =>
+      prevItems.filter((_, index) => index !== indexToRemove)
+    );
   };
 
   const handleDataSubmit = async () => {
@@ -133,10 +184,7 @@ export default function Upload() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(extractedItems),
-        // --- THIS LINE IS THE FIX ---
-        // It tells the browser to include the auth cookie with the request.
         credentials: "include",
-        // --- END OF FIX ---
       });
 
       const result = await response.json();
@@ -160,7 +208,14 @@ export default function Upload() {
 
   return (
     <Container component="main" maxWidth="md">
-      <Box sx={{ marginTop: 8, display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <Box
+        sx={{
+          marginTop: 8,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        }}
+      >
         <Typography component="h1" variant="h5">
           Upload Receipt
         </Typography>
@@ -169,7 +224,12 @@ export default function Upload() {
         </Typography>
 
         <Box sx={{ mt: 3, width: "100%" }}>
-          <Button component="label" variant="contained" startIcon={<CloudUploadIcon />} fullWidth>
+          <Button
+            component="label"
+            variant="contained"
+            startIcon={<CloudUploadIcon />}
+            fullWidth
+          >
             Select File
             <VisuallyHiddenInput type="file" onChange={handleFileChange} />
           </Button>
@@ -179,8 +239,16 @@ export default function Upload() {
             </Typography>
           )}
 
-          {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-          {successMessage && <Alert severity="success" sx={{ mt: 2 }}>{successMessage}</Alert>}
+          {error && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {error}
+            </Alert>
+          )}
+          {successMessage && (
+            <Alert severity="success" sx={{ mt: 2 }}>
+              {successMessage}
+            </Alert>
+          )}
 
           <Button
             onClick={handleFileUpload}
@@ -198,36 +266,103 @@ export default function Upload() {
                 <Typography variant="h6" gutterBottom>
                   Extracted Items
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
                   Please review and correct the items below before saving.
                 </Typography>
                 {extractedItems.map((item, index) => (
                   <Box key={index}>
-                    <Grid container spacing={2} sx={{ alignItems: 'center', mb: 2 }}>
+                    <Grid container spacing={2} sx={{ alignItems: "center", mb: 2 }}>
                       <Grid>
-                        <TextField fullWidth label="Item Name" name="name" value={item.name} onChange={(e) => handleItemChange(index, 'name', e.target.value)} />
+                        <TextField
+                          fullWidth
+                          label="Item Name"
+                          name="name"
+                          value={item.name}
+                          onChange={(e) =>
+                            handleItemChange(index, "name", e.target.value)
+                          }
+                        />
                       </Grid>
                       <Grid>
-                        <TextField fullWidth label="Price" name="price" type="number" value={item.price} onChange={(e) => handleItemChange(index, 'price', e.target.value)} />
+                        <TextField
+                          fullWidth
+                          label="Price"
+                          name="price"
+                          type="number"
+                          value={item.price}
+                          onChange={(e) =>
+                            handleItemChange(index, "price", e.target.value)
+                          }
+                        />
                       </Grid>
                       <Grid>
-                        <TextField fullWidth label="Quantity" name="quantity" type="number" value={item.quantity} onChange={(e) => handleItemChange(index, 'quantity', e.target.value)} />
+                        <TextField
+                          fullWidth
+                          label="Quantity"
+                          name="quantity"
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) =>
+                            handleItemChange(index, "quantity", e.target.value)
+                          }
+                        />
                       </Grid>
                       <Grid>
-                        <TextField fullWidth label="Unit" name="unit" value={item.unit} onChange={(e) => handleItemChange(index, 'unit', e.target.value)} />
+                        <TextField
+                          fullWidth
+                          label="Unit"
+                          name="unit"
+                          value={item.unit}
+                          onChange={(e) =>
+                            handleItemChange(index, "unit", e.target.value)
+                          }
+                        />
                       </Grid>
-                      <Grid sx={{ textAlign: 'center' }}>
-                        <IconButton aria-label="delete" onClick={() => handleRemoveItem(index)}>
+                      <Grid>
+                        <FormControl fullWidth>
+                          <InputLabel>Category</InputLabel>
+                          <Select
+                            label="Category"
+                            value={item.category}
+                            onChange={(e) =>
+                              handleItemChange(index, "category", e.target.value)
+                            }
+                          >
+                            {categories.map((cat) => (
+                              <MenuItem key={cat} value={cat}>
+                                {cat}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid sx={{ textAlign: "center" }}>
+                        <IconButton
+                          aria-label="delete"
+                          onClick={() => handleRemoveItem(index)}
+                        >
                           <DeleteIcon />
                         </IconButton>
                       </Grid>
                     </Grid>
-                    {index < extractedItems.length - 1 && <Divider sx={{ my: 1 }} />}
+                    {index < extractedItems.length - 1 && (
+                      <Divider sx={{ my: 1 }} />
+                    )}
                   </Box>
                 ))}
               </CardContent>
               <CardActions>
-                <Button onClick={handleDataSubmit} disabled={isLoading} fullWidth variant="contained" color="primary">
+                <Button
+                  onClick={handleDataSubmit}
+                  disabled={isLoading}
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                >
                   {isLoading ? <CircularProgress size={24} /> : "Save All Items"}
                 </Button>
               </CardActions>
@@ -238,4 +373,3 @@ export default function Upload() {
     </Container>
   );
 }
-

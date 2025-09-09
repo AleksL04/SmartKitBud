@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import PocketBase from 'pocketbase';
-import { decrypt, type SessionPayload } from '../../lib/session'; // Import the session type
+import { decrypt, type SessionPayload } from '../../lib/session';
 
 export async function POST(request: Request) {
   try {
     const pb = new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL);
 
-    // --- Correct User Authentication ---
     const cookie = (await cookies()).get('session')?.value;
     if (!cookie) {
       return NextResponse.json({ error: 'Authentication token not found.' }, { status: 401 });
@@ -18,17 +17,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid or expired session. Please log in again.' }, { status: 401 });
     }
 
-    // Authenticate the PocketBase instance with the token from the session
     pb.authStore.save(session.externalApiToken, null);
 
-    // --- Data Processing ---
     const items = await request.json();
 
     if (!Array.isArray(items)) {
         return NextResponse.json({ error: 'Invalid data format. Expected an array of items.' }, { status: 400 });
     }
 
-    const userId = session.user.id; // This now works perfectly!
+    const userId = session.user.id;
 
     for (const item of items) {
       const newRecord = {
@@ -36,6 +33,7 @@ export async function POST(request: Request) {
         price: item.price,
         quantity: item.quantity,
         unit: item.unit,
+        category: item.category, // This line was missing
         owner: userId,
       };
       
