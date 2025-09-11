@@ -3,3 +3,5 @@ tests
 backend-old
 node_modules
 .env
+logs
+.env.local
