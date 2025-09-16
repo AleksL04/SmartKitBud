@@ -6,12 +6,10 @@ This document provides an overview of the SmartKitBud project, a full-stack appl
 
 SmartKitBud helps you manage your kitchen inventory by allowing you to upload receipts, automatically extracting the items, and providing recipe suggestions based on what you have.
 
-The application consists of three main parts:
+The application is built with Next.js and uses PocketBase as its backend.
 
 *   **Frontend:** A Next.js application built with TypeScript and Material-UI.
-*   **Backend:**
-    *   **PocketBase:** A PocketBase instance serves as the database.
-    *   **Command API:** A Node.js Express server that provides an API for interacting with the system.
+*   **Backend:** A PocketBase instance serves as the database and backend.
 
 ## Building and Running
 
@@ -25,12 +23,6 @@ The application consists of three main parts:
 1.  **Frontend:**
     ```bash
     cd frontend
-    npm install
-    ```
-
-2.  **Command API:**
-    ```bash
-    cd backend/command-api
     npm install
     ```
 
@@ -76,7 +68,6 @@ Once all services are running, the application is accessible at [http://localhos
 *   **Backend:**
     *   The database is managed by PocketBase.
     *   Database schema changes are handled through migration files located in `backend/pb_migrations`.
-    *   The command API is a Node.js Express server.
 
 *   **Linting:**
     *   The frontend code can be linted with the following command:
