@@ -5,7 +5,6 @@ import {
   CircularProgress,
   Alert,
   Box,
-  Grid,
   Container,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
@@ -178,9 +177,16 @@ export default function DashboardPage() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Grid container spacing={3}>
-        <Grid>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4, px: { xs: 2, sm: 3 } }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          gap: 4,
+          alignItems: "flex-start",
+        }}
+      >
+        <Box sx={{ flex: { xs: "unset", md: 2 }, width: { xs: "100%", md: "auto" } }}>
           <Inventory
             filteredAndGroupedItems={filteredAndGroupedItems}
             searchTerm={searchTerm}
@@ -192,9 +198,9 @@ export default function DashboardPage() {
             handleSelectAllInCategory={handleSelectAllInCategory}
             router={router}
           />
-        </Grid>
+        </Box>
 
-        <Grid>
+        <Box sx={{ flex: { xs: "unset", md: 1 }, width: { xs: "100%", md: "auto" } }}>
           <Box sx={{ position: { md: "sticky" }, top: "80px" }}>
             <SelectedIngredients
               selectedItems={selectedItems}
@@ -208,8 +214,8 @@ export default function DashboardPage() {
               error={recipesError}
             />
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Container>
   );
 }

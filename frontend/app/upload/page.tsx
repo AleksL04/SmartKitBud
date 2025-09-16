@@ -172,6 +172,17 @@ export default function Upload() {
     );
   };
 
+  const handleAddItemManually = () => {
+    const newItem: ReceiptItem = {
+      name: "",
+      price: 0,
+      quantity: 1,
+      unit: "",
+      category: "Other",
+    };
+    setExtractedItems([...extractedItems, newItem]);
+  };
+
   const handleDataSubmit = async () => {
     if (extractedItems.length === 0) return;
 
@@ -250,15 +261,24 @@ export default function Upload() {
             </Alert>
           )}
 
-          <Button
-            onClick={handleFileUpload}
-            disabled={!selectedFile || isLoading || extractedItems.length > 0}
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 3 }}
-          >
-            {isLoading ? <CircularProgress size={24} /> : "Process Receipt"}
-          </Button>
+          <Box sx={{ display: 'flex', gap: 2, mt: 3, mb: 3 }}>
+            <Button
+              onClick={handleFileUpload}
+              disabled={!selectedFile || isLoading || extractedItems.length > 0}
+              fullWidth
+              variant="contained"
+            >
+              {isLoading ? <CircularProgress size={24} /> : "Process Receipt"}
+            </Button>
+            <Button
+              onClick={handleAddItemManually}
+              disabled={isLoading}
+              fullWidth
+              variant="outlined"
+            >
+              Add Item Manually
+            </Button>
+          </Box>
 
           {extractedItems.length > 0 && (
             <Card>
