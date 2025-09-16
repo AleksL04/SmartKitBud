@@ -28,16 +28,38 @@ export async function POST(request: Request) {
     const userId = session.user.id;
 
     for (const item of items) {
-      const newRecord = {
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        unit: item.unit,
-        category: item.category, // This line was missing
-        owner: userId,
-      };
-      
-      await pb.collection('receipt_items').create(newRecord);
+      try {
+        // Try to find an existing item with the same name for the current user.
+        const existingRecord = await pb.collection('receipt_items').getFirstListItem(`owner="${userId}" && name="${item.name}"`);
+
+        // If found, update it. Here, we're adding quantities.
+        const updatedData = {
+          quantity: existingRecord.quantity + item.quantity,
+          price: item.price, // You could also average the price or use the latest one.
+          category: item.category,
+          unit: item.unit
+        };
+        await pb.collection('receipt_items').update(existingRecord.id, updatedData);
+
+      } catch (error: any) {
+        // If getFirstListItem throws a 404 error, it means the item was not found.
+        if (error.status === 404) {
+          // Create a new record since one doesn't exist.
+          const newRecord = {
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            unit: item.unit,
+            category: item.category,
+            owner: userId,
+          };
+          await pb.collection('receipt_items').create(newRecord);
+        } else {
+          // If it's a different error, we should log it and re-throw it.
+          console.error('Error processing item:', item.name, error);
+          throw error;
+        }
+      }
     }
     
     return NextResponse.json({ success: true, message: `${items.length} items saved successfully.` }, { status: 200 });

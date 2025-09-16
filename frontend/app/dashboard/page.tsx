@@ -2,35 +2,17 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import {
-  Typography,
   CircularProgress,
   Alert,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  TextField,
   Box,
-  Collapse,
-  IconButton,
-  Checkbox,
-  Chip,
-  Button,
-  AlertTitle,
   Grid,
-  Card,
-  CardMedia,
-  CardContent,
-  Link,
-  Skeleton,
   Container,
 } from "@mui/material";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useRouter } from "next/navigation";
+
+import Inventory from "./components/Inventory";
+import RecipeSuggestions from "./components/RecipeSuggestions";
+import SelectedIngredients from "./components/SelectedIngredients";
 
 // --- TYPE DEFINITIONS ---
 interface ReceiptItem {
@@ -122,7 +104,7 @@ export default function DashboardPage() {
     setRecipesError(null);
     setRecipes([]);
 
-    const ingredientList = selectedItems.map((item) => item.name).join(",");
+    const ingredientList = [...new Set(selectedItems.map((item) => item.name))].join(",");
 
     try {
       const response = await fetch("/api/recipes", {
@@ -198,262 +180,36 @@ export default function DashboardPage() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Grid container spacing={3}>
-        {/* --- LEFT COLUMN: INVENTORY --- */}
         <Grid>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 2,
-            }}
-          >
-            <Typography variant="h4" component="h1">
-              My Inventory
-            </Typography>
-            <TextField
-              label="Search Inventory"
-              variant="outlined"
-              size="small"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </Box>
-          {selectedItems.length > 0 && (
-            <Alert
-              severity="info"
-              sx={{ mb: 2 }}
-              action={
-                <Button
-                  color="primary"
-                  size="small"
-                  variant="contained"
-                  onClick={handleFindRecipes}
-                  disabled={isRecipesLoading}
-                >
-                  {isRecipesLoading ? (
-                    <CircularProgress size={20} />
-                  ) : (
-                    "Find Recipes"
-                  )}
-                </Button>
-              }
-            >
-              <AlertTitle>
-                Selected Ingredients ({selectedItems.length})
-              </AlertTitle>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {selectedItems.map((item) => (
-                  <Chip
-                    key={item.id}
-                    label={item.name}
-                    onDelete={() => handleSelectItem(item, false)}
-                  />
-                ))}
-              </Box>
-            </Alert>
-          )}
-
-          {Object.keys(filteredAndGroupedItems).length === 0 ? (
-            <Paper
-              elevation={2}
-              sx={{
-                p: 4,
-                textAlign: "center",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <Typography variant="h6">
-                Your inventory is looking a little empty!
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                Upload a receipt to automatically add items and get recipe
-                suggestions.
-              </Typography>
-              <Button
-                variant="contained"
-                onClick={() => router.push("/upload")}
-              >
-                Upload a Receipt
-              </Button>
-            </Paper>
-          ) : (
-            Object.keys(filteredAndGroupedItems)
-              .sort()
-              .map((category) => {
-                const categoryItems = filteredAndGroupedItems[category];
-                const selectedInCategory = categoryItems.filter((item) =>
-                  selectedItems.some((sel) => sel.id === item.id)
-                );
-                const areAllSelected =
-                  categoryItems.length > 0 &&
-                  selectedInCategory.length === categoryItems.length;
-
-                return (
-                  <Paper sx={{ width: "100%", mb: 2 }} key={category}>
-                    <Box
-                      sx={{
-                        p: 2,
-                        cursor: "pointer",
-                        display: "flex",
-                        justifyContent: "space-between",
-                      }}
-                      onClick={() => toggleCategory(category)}
-                    >
-                      <Typography variant="h6">{category}</Typography>
-                      <IconButton size="small">
-                        {openCategories[category] ? (
-                          <KeyboardArrowUpIcon />
-                        ) : (
-                          <KeyboardArrowDownIcon />
-                        )}
-                      </IconButton>
-                    </Box>
-                    <Collapse
-                      in={openCategories[category]}
-                      timeout="auto"
-                      unmountOnExit
-                    >
-                      <TableContainer>
-                        <Table
-                          size="small"
-                          stickyHeader
-                          aria-label={`${category} items`}
-                        >
-                          <TableHead>
-                            <TableRow>
-                              <TableCell padding="checkbox">
-                                <Checkbox
-                                  indeterminate={
-                                    selectedInCategory.length > 0 &&
-                                    !areAllSelected
-                                  }
-                                  checked={areAllSelected}
-                                  onChange={() =>
-                                    handleSelectAllInCategory(
-                                      categoryItems,
-                                      areAllSelected
-                                    )
-                                  }
-                                />
-                              </TableCell>
-                              <TableCell>Item Name</TableCell>
-                              <TableCell align="right">Quantity</TableCell>
-                              <TableCell align="right">Unit</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {categoryItems.map((item) => {
-                              const isSelected = selectedItems.some(
-                                (selected) => selected.id === item.id
-                              );
-                              return (
-                                <TableRow
-                                  hover
-                                  key={item.id}
-                                  selected={isSelected}
-                                  sx={{
-                                    "&:last-child td, &:last-child th": {
-                                      border: 0,
-                                    },
-                                  }}
-                                >
-                                  <TableCell padding="checkbox">
-                                    <Checkbox
-                                      checked={isSelected}
-                                      onChange={(e) =>
-                                        handleSelectItem(item, e.target.checked)
-                                      }
-                                    />
-                                  </TableCell>
-                                  <TableCell>{item.name}</TableCell>
-                                  <TableCell align="right">
-                                    {item.quantity}
-                                  </TableCell>
-                                  <TableCell align="right">
-                                    {item.unit}
-                                  </TableCell>
-                                </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
-                    </Collapse>
-                  </Paper>
-                );
-              })
-          )}
+          <Inventory
+            filteredAndGroupedItems={filteredAndGroupedItems}
+            searchTerm={searchTerm}
+            onSearchTermChange={setSearchTerm}
+            openCategories={openCategories}
+            toggleCategory={toggleCategory}
+            selectedItems={selectedItems}
+            handleSelectItem={handleSelectItem}
+            handleSelectAllInCategory={handleSelectAllInCategory}
+            router={router}
+          />
         </Grid>
 
-        {/* --- RIGHT COLUMN: RECIPE RESULTS --- */}
-        <Grid sx={{ position: { md: "sticky" }, top: "80px", height: "100%" }}>
-          <Paper sx={{ p: 2, height: "100%" }}>
-            <Typography variant="h6" gutterBottom>
-              Recipe Suggestions
-            </Typography>
-            {isRecipesLoading && (
-              <Grid container spacing={2}>
-                {Array.from(new Array(6)).map((_, index) => (
-                  <Grid key={index}>
-                    <Skeleton variant="rectangular" height={140} />
-                    <Skeleton />
-                    <Skeleton width="60%" />
-                  </Grid>
-                ))}
-              </Grid>
-            )}
-            {recipesError && <Alert severity="error">{recipesError}</Alert>}
-            {!isRecipesLoading && recipes.length === 0 && !recipesError && (
-              <Typography variant="body1" color="text.secondary">
-                Select ingredients from your inventory and click &quot;Find
-                Recipes&quot; to see suggestions.
-              </Typography>
-            )}
-            <Grid container spacing={2}>
-              {recipes.map((recipe) => (
-                <Grid key={recipe.id}>
-                  <Card>
-                    <CardMedia
-                      component="img"
-                      height="140"
-                      image={recipe.image}
-                      alt={recipe.title}
-                    />
-                    <CardContent sx={{ p: 1.5 }}>
-                      <Link
-                        href={`https://spoonacular.com/recipes/${recipe.title.replace(
-                          /\s+/g,
-                          "-"
-                        )}-${recipe.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        underline="hover"
-                        variant="body2"
-                      >
-                        {recipe.title}
-                      </Link>
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        component="div"
-                        sx={{ mt: 1 }}
-                      >
-                        Uses: {recipe.usedIngredientCount} | Missing:{" "}
-                        {recipe.missedIngredientCount}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Paper>
+        <Grid>
+          <Box sx={{ position: { md: "sticky" }, top: "80px" }}>
+            <SelectedIngredients
+              selectedItems={selectedItems}
+              isRecipesLoading={isRecipesLoading}
+              onFindRecipes={handleFindRecipes}
+              onDeselectItem={(item) => handleSelectItem(item, false)}
+            />
+            <RecipeSuggestions
+              recipes={recipes}
+              isLoading={isRecipesLoading}
+              error={recipesError}
+            />
+          </Box>
         </Grid>
       </Grid>
     </Container>
   );
 }
-

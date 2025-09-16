@@ -7,9 +7,10 @@ const { GoogleGenAI } = require("@google/genai");
 const PocketBase = require('pocketbase/cjs');
 
 const { 
-    process_image_to_receipt_json, 
-    format_json_to_lowercase,
-    classify_and_normalize_items
+    // process_image_to_receipt_json, 
+    // format_json_to_lowercase,
+    //classify_and_normalize_items
+    process_image_to_normalized_json
 } = require('./functions.js');
 
 const app = express();
@@ -21,7 +22,7 @@ const ai = new GoogleGenAI(process.env.GEMINI_API_KEY);
 const pb = new PocketBase('http://127.0.0.1:8090'); 
 const authenticateUser = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
-    // Extract token from "Bearer TOKEN"
+    // Extract token from "Bearer Tprocess_image_to_receipt_jsonOKEN"
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
@@ -92,17 +93,19 @@ app.post('/scan-receipt', authenticateUser, async (req, res) => {
         console.log("Image file received, converting to Base64...");
         const base64ImageFile = fileToBase64(imageFile.filepath);
         
-        // --- AI Pipeline Step 1 ---
-        console.log("Conversion complete. [1/3] Extracting items from image...");
-        const rawJsonString = await process_image_to_receipt_json(ai, base64ImageFile);
-        
-        // --- AI Pipeline Step 2 ---
-        console.log("[2/3] Formatting and cleaning extracted JSON...");
-        const formattedJsonString = await format_json_to_lowercase(ai, rawJsonString);
+        // --- Unified AI Pipeline ---
+        console.log("Conversion complete. Processing image with unified AI function...");
+        const finalJsonString = await process_image_to_normalized_json(ai, base64ImageFile);
 
-        // --- AI Pipeline Step 3 (New) ---
-        console.log("[3/3] Classifying, normalizing, and categorizing items...");
-        const finalJsonString = await classify_and_normalize_items(ai, formattedJsonString);
+        // --- Old AI Pipeline (Commented Out) ---
+        // console.log("Conversion complete. [1/3] Extracting items from image...");
+        // const rawJsonString = await process_image_to_receipt_json(ai, base64ImageFile);
+        // 
+        // console.log("[2/3] Formatting and cleaning extracted JSON...");
+        // const formattedJsonString = await format_json_to_lowercase(ai, rawJsonString);
+        // 
+        // console.log("[3/3] Classifying, normalizing, and categorizing items...");
+        // const finalJsonString = await classify_and_normalize_items(ai, formattedJsonString);
 
         //console.log(finalJsonString)
         
