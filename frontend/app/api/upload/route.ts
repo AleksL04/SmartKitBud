@@ -35,11 +35,17 @@ export async function POST(request: NextRequest) {
         const base64Image = await fileToBase64(file);
         const finalJsonString = await processImageToNormalizedJson(base64Image);
 
+        if (!finalJsonString || typeof finalJsonString !== 'string') {
+            console.error('AI returned an empty or non-string response:', finalJsonString);
+            return NextResponse.json({ error: 'Failed to process receipt: empty AI response.' }, { status: 502 });
+        }
+
         let finalJson;
         try {
             const cleanedString = finalJsonString.replace(/```json/g, '').replace(/```/g, '').trim();
             finalJson = JSON.parse(cleanedString);
-        } catch (parseError) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (err) {
             console.error("Failed to parse JSON from AI response:", finalJsonString);
             throw new Error("AI returned a response that was not valid JSON.");
         }

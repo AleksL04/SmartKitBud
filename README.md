@@ -1,62 +1,86 @@
 # SmartKitBud
 
-SmartKitBud is a full-stack application designed to help you manage your kitchen inventory. It allows you to upload receipts, automatically extracts the items, and provides recipe suggestions based on the items you have.
+This document provides an overview of the SmartKitBud project, a full-stack application for managing kitchen inventory.
 
 ## Project Overview
 
-This is a full-stack application with a Next.js frontend and a backend powered by PocketBase and a Node.js command API.
+SmartKitBud helps you manage your kitchen inventory by allowing you to upload receipts, automatically extracting the items, and providing recipe suggestions based on what you have.
 
-### Frontend
+The application consists of three main parts:
 
-The frontend is a Next.js application located in the `frontend` directory. It uses Material-UI for components and is written in TypeScript.
+*   **Frontend:** A Next.js application built with TypeScript and Material-UI.
+*   **Backend:**
+    *   **PocketBase:** A PocketBase instance serves as the database.
+    *   **Command API:** A Node.js Express server that provides an API for interacting with the system.
 
-### Backend
+## Building and Running
 
-The backend consists of two parts:
+### Prerequisites
 
-*   **PocketBase:** A PocketBase instance is used as the database. The data schema is defined in the migration files located in `backend/pb/pb_migrations`. The main collection is `receipt_items`, which stores information about items from receipts.
-*   **Command API:** A Node.js Express server located in `backend/command-api` provides an API for interacting with the system.
-
-## Getting Started
-
-To get started with SmartKitBud, you'll need to have Node.js and npm installed.
+*   Node.js and npm
+*   PocketBase executable (located in the `backend` directory)
 
 ### Installation
 
-1.  Clone the repository:
-
-    ```bash
-    git clone <repository-url>
-    ```
-
-2.  Install the dependencies for the frontend:
-
+1.  **Frontend:**
     ```bash
     cd frontend
     npm install
     ```
 
-3.  Install the dependencies for the backend:
-
+2.  **Command API:**
     ```bash
-    cd ../backend/command-api
+    cd backend/command-api
     npm install
     ```
 
 ### Running the Application
 
-To start all services, run the `start-all.sh` script from the project root:
+The easiest way to start all services is to use the `start-all.sh` script in the project root:
 
 ```bash
 ./start-all.sh
 ```
 
-This will start the PocketBase server, the command API server, and the frontend development server. Logs for each service are stored in the `logs` directory.
+This script will:
 
-Once the services are running, you can access the application at [http://localhost:3000](http://localhost:3000).
+1.  Start the PocketBase server.
+2.  Start the frontend development server.
+
+Logs for each service are stored in the `logs` directory.
+
+Once all services are running, the application is accessible at [http://localhost:3000](http://localhost:3000).
+
+### Individual Services
+
+*   **Frontend:**
+    ```bash
+    cd frontend
+    npm run dev
+    ```
+
+*   **PocketBase:**
+    ```bash
+    cd backend
+    ./pocketbase serve
+    ```
 
 ## Development Conventions
 
-*   The frontend code is written in TypeScript and uses Next.js.
-*   The backend command API is a Node.js Express server.
-*   The database is managed by PocketBase, with schema changes handled through migration files.
+*   **Frontend:**
+    *   The frontend is written in TypeScript and uses the Next.js framework.
+    *   Styling is done with Material-UI.
+    *   API routes are defined in the `frontend/app/api` directory.
+    *   Authentication is handled via a session cookie.
+
+*   **Backend:**
+    *   The database is managed by PocketBase.
+    *   Database schema changes are handled through migration files located in `backend/pb_migrations`.
+    *   The command API is a Node.js Express server.
+
+*   **Linting:**
+    *   The frontend code can be linted with the following command:
+        ```bash
+        cd frontend
+        npm run lint
+        ```
