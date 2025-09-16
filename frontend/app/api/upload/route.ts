@@ -1,52 +1,54 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { decrypt } from '../../lib/session'; // Ensure this path to your session helpers is correct
+import { decrypt } from '../../lib/session';
+import { processImageToNormalizedJson } from '../../lib/ai';
 
-// It's best practice to store your external API URL in an environment variable
-const EXTERNAL_API_URL = process.env.EXTERNAL_API_URL || 'http://127.0.0.1:3005/scan-receipt';
+// Helper function to convert a file to a base64 string
+async function fileToBase64(file: File): Promise<string> {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    return buffer.toString('base64');
+}
 
 export async function POST(request: NextRequest) {
-    // 1. Verify the user is authenticated by decrypting the session cookie.
-    // This is the security checkpoint for your API route. 🛡️
+    // 1. Verify user authentication
     const cookie = (await cookies()).get('session')?.value;
     const session = await decrypt(cookie ?? '');
 
-    if (!session?.user || !session?.externalApiToken) {
+    if (!session?.user) {
         return NextResponse.json(
             { error: 'Unauthorized: You must be logged in to upload files.' },
             { status: 401 }
         );
     }
 
-    // 2. Extract the file from the incoming request's FormData.
+    // 2. Extract the file from the FormData
     const formData = await request.formData();
-    const file = formData.get('image');
+    const file = formData.get('image') as File | null;
 
     if (!file) {
-        return NextResponse.json({ error: 'No file was provided in the request.' }, { status: 400 });
+        return NextResponse.json({ error: 'No file was provided.' }, { status: 400 });
     }
 
     try {
-        // 3. Forward the FormData to your external service.
-        // The Authorization header uses the token we safely stored in the user's session.
-        const externalApiResponse = await fetch(EXTERNAL_API_URL, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${session.externalApiToken}`,
-            },
-            body: formData,
-        });
+        // 3. Process the image directly within the Next.js backend
+        const base64Image = await fileToBase64(file);
+        const finalJsonString = await processImageToNormalizedJson(base64Image);
 
-        // 4. Return the response from the external service back to the client.
-        const result = await externalApiResponse.json();
-        if (!externalApiResponse.ok) {
-            return NextResponse.json(result, { status: externalApiResponse.status });
+        let finalJson;
+        try {
+            const cleanedString = finalJsonString.replace(/```json/g, '').replace(/```/g, '').trim();
+            finalJson = JSON.parse(cleanedString);
+        } catch (parseError) {
+            console.error("Failed to parse JSON from AI response:", finalJsonString);
+            throw new Error("AI returned a response that was not valid JSON.");
         }
-
-        return NextResponse.json(result);
+        
+        return NextResponse.json({ text: finalJson });
 
     } catch (error) {
-        console.error('Error proxying file upload:', error);
-        return NextResponse.json({ error: 'An internal server error occurred.' }, { status: 500 });
+        console.error('Error in upload handler:', error);
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+        return NextResponse.json({ error: 'Failed to process receipt.', details: errorMessage }, { status: 500 });
     }
 }

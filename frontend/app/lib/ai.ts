@@ -1,6 +1,6 @@
+import { GoogleGenAI } from "@google/genai";
 
-async function process_image_to_normalized_json(ai, base64ImageFile) {
-  const _GEMINI_INSTRUCTION = `You are an intelligent grocery receipt processing assistant. Your task is to analyze a receipt image and produce a clean, structured JSON output of the food items found.
+const _GEMINI_INSTRUCTION = `You are an intelligent grocery receipt processing assistant. Your task is to analyze a receipt image and produce a clean, structured JSON output of the food items found.
 
   Perform the following actions in a single step:
   
@@ -48,6 +48,11 @@ async function process_image_to_normalized_json(ai, base64ImageFile) {
   ]
   
   If no food items are found, return an empty array []. Do not include any additional text or markdown quotes.`;
+
+export async function processImageToNormalizedJson(base64ImageFile: string) {
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY as string;
+    const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+    
     const contents = [
       {
         inlineData: {
@@ -70,7 +75,3 @@ async function process_image_to_normalized_json(ai, base64ImageFile) {
     });
     return response.text;
 }
-
-module.exports = {
-  process_image_to_normalized_json
-};
